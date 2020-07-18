@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Core.h"
-#include <memory>
 #include "spdlog/spdlog.h"
+#include "spdlog/fmt/ostr.h"
+
 
 namespace Hazel {
 	class HAZEL_API Log {
@@ -29,4 +30,3 @@ namespace Hazel {
 #define HZ_INFO(...)    ::Hazel::Log::GetClientLoger()->info(__VA_ARGS__)
 #define HZ_WARN(...)    ::Hazel::Log::GetClientLoger()->warn(__VA_ARGS__)
 #define HZ_ERROR(...)   ::Hazel::Log::GetClientLoger()->error(__VA_ARGS__)
-#define HZ_FATAL(...)   ::Hazel::Log::GetClientLoger()->fatal(__VA_ARGS__)
