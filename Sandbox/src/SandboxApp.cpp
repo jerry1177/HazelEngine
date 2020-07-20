@@ -24,7 +24,10 @@ public:
 Hazel::Application* Hazel::CreateApplication() {
 	Sandbox* sandBox = new Sandbox();
 	SandBoxLayer* sbLayer = new SandBoxLayer();
+	ImGuiLayer* imgLayer = new ImGuiLayer();
 	
 	sandBox->PushLayer(sbLayer);
+	sandBox->PushOverLay(imgLayer);
+
 	return sandBox;
 }
