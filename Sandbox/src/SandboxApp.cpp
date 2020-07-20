@@ -1,5 +1,15 @@
 #include <Hazel.h>
 
+class SandBoxLayer : public Hazel::Layer {
+public:
+	SandBoxLayer() : Layer("Sandbox layer") {}
+	~SandBoxLayer() {}
+
+	void OnEvent(Hazel::Event& event) override {
+		HZ_INFO("{0}", event);
+	}
+};
+
 class Sandbox : public Hazel::Application {
 public:
 	Sandbox() {
@@ -12,5 +22,9 @@ public:
 };
 
 Hazel::Application* Hazel::CreateApplication() {
-	return new Sandbox();
+	Sandbox* sandBox = new Sandbox();
+	SandBoxLayer* sbLayer = new SandBoxLayer();
+	
+	sandBox->PushLayer(sbLayer);
+	return sandBox;
 }
