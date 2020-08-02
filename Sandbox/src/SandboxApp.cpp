@@ -6,7 +6,11 @@ public:
 	~SandBoxLayer() {}
 
 	void OnEvent(Hazel::Event& event) override {
-		HZ_INFO("{0}", event);
+		if (event.GetEventType() == Hazel::EventType::KeyPressed)
+			if (Hazel::Input::IsKeyPressed(HZ_KEY_TAB))
+				HZ_CORE_INFO("Tab pressed");
+				//HZ_INFO("{0}", event);
+		
 	}
 };
 
