@@ -10,6 +10,9 @@ namespace Hazel {
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(HZ_BIND_EVENT_FN(Application::OnEvent));
+
+		m_ImGuiLayer = new ImGuiLayer();
+		PushOverLay(m_ImGuiLayer);
 		m_Running = true;
 	}
 
@@ -56,6 +59,13 @@ namespace Hazel {
 			//bool x = Input::IsKeyPressed()
 
 			//HZ_CORE_TRACE("{0}", x);
+			//*
+			m_ImGuiLayer->Begin();
+			// ImGui render sits between begin and end 
+			for (Layer* layer : m_LayerStack)
+				layer->OnImGuiRender();
+			m_ImGuiLayer->End();
+			//*/
 			m_Window->OnUpdate();
 		}
 	}
