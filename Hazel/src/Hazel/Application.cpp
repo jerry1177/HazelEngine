@@ -5,6 +5,27 @@
 namespace Hazel {
 	Application* Application::s_Instance = nullptr;
 
+	static GLenum ShaderDatatypeToOpenGLType(ShaderDataType type) {
+		switch (type)
+		{
+		case Hazel::ShaderDataType::Float:	return GL_FLOAT;
+		case Hazel::ShaderDataType::Float2:	return GL_FLOAT;
+		case Hazel::ShaderDataType::Float3:	return GL_FLOAT;
+		case Hazel::ShaderDataType::Float4:	return GL_FLOAT;
+		case Hazel::ShaderDataType::Mat3:	return GL_FLOAT;
+		case Hazel::ShaderDataType::Mat4:	return GL_FLOAT;
+		case Hazel::ShaderDataType::Int:	return GL_INT;
+		case Hazel::ShaderDataType::Int2:	return GL_INT;
+		case Hazel::ShaderDataType::Int3:	return GL_INT;
+		case Hazel::ShaderDataType::Int4:	return GL_INT;
+		case Hazel::ShaderDataType::Bool:	return GL_BOOL;
+
+		default:
+			HZ_CORE_ASSERT(false, "Unknown ShaderDataType");
+			return 0;
+		}
+	}
+
 	Application::Application() {
 		s_Instance = this;
 
@@ -19,23 +40,36 @@ namespace Hazel {
 		
 
 		//index buffer
-		float verticies[3 * 3] = {
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.0f,  0.5f, 0.0f
+		float verticies[3 * 7] = {
+			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+			 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+			 0.0f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f
 		};
 
 		//vertex buffer
 		m_VertexBuffer.reset(VertexBuffer::Create(verticies, sizeof(verticies)));
 
-		m_VertexBuffer->Bind();
-
-
+		
 		// tell opengl the layout of buffer
-
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-
+		{
+			BufferLayout layout = {
+				{ ShaderDataType::Float3, "a_Position" },
+				{ ShaderDataType::Float4, "a_Color" }
+			};
+			m_VertexBuffer->SetLayout(layout);
+		}
+		
+		const auto& layout = m_VertexBuffer->GetLayout();
+		uint32_t index = 0;
+		for (const auto& element : layout) {
+			glEnableVertexAttribArray(index);
+			glVertexAttribPointer(index, element.GetComponentCount(), 
+				ShaderDatatypeToOpenGLType(element.Type), 
+				element.Normalized ? GL_TRUE : GL_FALSE, 
+				layout.GetStride(), 
+				(const void*)element.Offset);
+			index++;
+		}
 		unsigned int indicies[3] = { 0, 1, 2 };
 		
 		m_IndexBuffer.reset(IndexBuffer::Create(indicies, sizeof(indicies)/sizeof(int32_t)));
@@ -44,10 +78,14 @@ namespace Hazel {
 			#version 330 core
 			
 			layout(location = 0) in vec3 a_Position;
+			layout(location = 1) in vec4 a_Color;
+
 			out vec3 v_Position;
+			out vec4 v_Color;
 
 			void main() {
 				v_Position = a_Position;
+				v_Color = a_Color;
 				gl_Position = vec4(a_Position+0.5, 1.0);
 			}
 		)";
@@ -58,9 +96,11 @@ namespace Hazel {
 			layout(location = 0) out vec4 color;
 
 			in vec3 v_Position;
+			in vec4 v_Color;
 
 			void main() {
 				color = vec4(v_Position*0.5+0.5, 1.0);
+				color = v_Color;
 			}
 		)";
 
