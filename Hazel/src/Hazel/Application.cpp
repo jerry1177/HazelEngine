@@ -1,7 +1,7 @@
 #include "hzpch.h"
 #include "Application.h"
 #include "Hazel/Input.h"
-#include <glad/glad.h>
+#include "Hazel/Renderer/Renderer.h"
 namespace Hazel {
 	Application* Application::s_Instance = nullptr;
 
@@ -21,8 +21,8 @@ namespace Hazel {
 		//index buffer
 		float verticies[3 * 7] = {
 			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-			 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-			 0.0f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f
+			 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.3f,
+			 0.0f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.3f
 		};
 
 		//vertex buffer
@@ -48,10 +48,10 @@ namespace Hazel {
 		m_SquareVA.reset(VertexArray::Create());
 
 		float squarVerticies[4 * 3] = {
-			-0.5f, -0.5f, 0.0f, 
-			 0.5f, -0.5f, 0.0f, 
-			 0.5f,  0.5f, 0.0f,
-			-0.5f,  0.5f, 0.0f
+			-0.75f, -0.75f, 0.0f, 
+			 0.75f, -0.75f, 0.0f, 
+			 0.75f,  0.75f, 0.0f,
+			-0.75f,  0.75f, 0.0f
 		};
 
 
@@ -161,17 +161,18 @@ namespace Hazel {
 		if (e.IsInCategory(EventCategoryApplication)) HZ_INFO(e);
 		if (!e.IsInCategory(EventCategoryKeyboard)) HZ_ERROR(e);
 		while (m_Running) { 
-			glClearColor(.1, .1, .1, 1);
-			glClear(GL_COLOR_BUFFER_BIT);
 
+			RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+			RenderCommand::Clear();
+
+			Renderer::BeginScene();
 			m_SquareShader->Bind();
-			m_SquareVA->Bind();
-
-			glDrawElements(GL_TRIANGLES, m_SquareVA->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+			Renderer::Submit(m_SquareVA);
 
 			m_Shader->Bind();
-			m_VertexArray->Bind();
-			glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+			Renderer::Submit(m_VertexArray);
+
+			Renderer::EndScene(); 
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate();
