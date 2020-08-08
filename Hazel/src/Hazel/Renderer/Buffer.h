@@ -27,7 +27,7 @@ namespace Hazel {
 			return 0;
 		}
 	}
-
+	// ---------- Buffer Element ------------
 	class BufferElement {
 	public:
 		std::string Name;
@@ -69,6 +69,7 @@ namespace Hazel {
 		}
 	};
 
+	// ---------- Buffer Layout ------------
 	class BufferLayout {
 	public:
 		BufferLayout() {}
@@ -98,6 +99,8 @@ namespace Hazel {
 		std::vector<BufferElement> m_Elements;
 		uint32_t m_Stride = 0;
 	};
+
+	// ---------- Vertex Buffer ------------
 	class VertexBuffer {
 	public:
 		virtual ~VertexBuffer() {}
@@ -109,6 +112,8 @@ namespace Hazel {
 
 		static VertexBuffer* Create(float* verticies, uint32_t size);
 	};
+
+	// ---------- Index Buffer ------------
 	class IndexBuffer {
 	public:
 		virtual ~IndexBuffer() {}
