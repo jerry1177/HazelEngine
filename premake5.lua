@@ -1,6 +1,6 @@
 workspace "Hazel"
 	architecture "x64"
-	startproject "Hazelnut"
+	startproject "Sandbox"
 
 	configurations
 	{
