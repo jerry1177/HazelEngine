@@ -1,5 +1,8 @@
 # Directories
 
 .vs/
+.vs/Hazel/v16/Browse.VC.db
+.vs/Hazel/v16/.suo
+
 bin/
 bin-int/

@@ -10,7 +10,7 @@
 
 class SandBoxLayer : public Hazel::Layer {
 public:
-	SandBoxLayer() : Layer("Sandbox"), m_Camera(-1.0f, 1.0f, -1.0f, 1.0f), cameraPosition(0.0f,0.0f,0.0f), m_SquarePosition(0.0f) {
+	SandBoxLayer() : Layer("Sandbox"), m_CameraController(1280.0f/720.0f, true), m_SquarePosition(0.0f) {
 		m_VertexArray.reset(Hazel::VertexArray::Create());
 
 		//index buffer
@@ -140,21 +140,15 @@ public:
 	~SandBoxLayer() {}
 
 	void OnUpdate(Hazel::TimeStep ts) override {
+		// Update
+		m_CameraController.OnUpdate(ts);
 
+		// On Render
 		HZ_TRACE("DeltaTime: {0}s, {1}ms", ts.GetSeconds(), ts.GetMiliSeconds());
 		Hazel::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 		Hazel::RenderCommand::Clear();
 
-		Hazel::Renderer::BeginScene(m_Camera);
-
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_A))
-			cameraPosition.x -= m_MoveSpeed * ts;
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_W))
-			cameraPosition.y += m_MoveSpeed * ts;
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_D))
-			cameraPosition.x += m_MoveSpeed * ts;
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_S))
-			cameraPosition.y -= m_MoveSpeed * ts;
+		Hazel::Renderer::BeginScene(m_CameraController.GetCamera());
 
 		if (Hazel::Input::IsKeyPressed(HZ_KEY_J))
 			m_SquarePosition.x -= m_SquareMoveSpeed * ts;
@@ -164,21 +158,6 @@ public:
 			m_SquarePosition.x += m_SquareMoveSpeed * ts;
 		if (Hazel::Input::IsKeyPressed(HZ_KEY_K))
 			m_SquarePosition.y -= m_SquareMoveSpeed * ts;
-
-
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_LEFT)) {
-			m_Rotation -= m_RotationSpeed * ts;
-			m_Camera.SetRotaion(m_Rotation);
-		}
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_RIGHT)) {
-			m_Rotation += m_RotationSpeed * ts;
-			m_Camera.SetRotaion(m_Rotation);
-		}
-
-		//rotation += 1.0f;
-
-
-		m_Camera.SetPosition(cameraPosition);
 
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
 
@@ -208,9 +187,10 @@ public:
 
 	void OnEvent(Hazel::Event& event) override {
 
+		m_CameraController.OnEvent(event);
+
 		Hazel::EventDispatcher dispatcher(event);
 		dispatcher.Dispatch<Hazel::KeyPressedEvent>(HZ_BIND_EVENT_FN(SandBoxLayer::OnKeyPressedEvent));
-		
 	}
 
 	bool OnKeyPressedEvent(Hazel::KeyPressedEvent& event) {
@@ -235,11 +215,9 @@ private:
 	Hazel::Ref<Hazel::VertexArray> m_SquareVA;
 	Hazel::Ref<Hazel::Texture2D> m_Texture;
 
-	Hazel::OrthogrphicCamera m_Camera;
+	Hazel::OrthographicCameraController m_CameraController;
 
 	float m_RotationSpeed = 40.0f, m_Rotation = 0.0f, m_MoveSpeed = 3.0f;
-
-	glm::vec3 cameraPosition;
 
 	float m_SquareMoveSpeed = 1.0f;
 	glm::vec3 m_SquarePosition;
