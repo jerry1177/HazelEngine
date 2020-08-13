@@ -1,6 +1,10 @@
 #include <Hazel.h>
+#include "Platform/OpenGL/OpenGLShader.h"
+#include "Platform/OpenGL/OpenGLTexture.h"
 #include "imgui.h"
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 
 
 class SandBoxLayer : public Hazel::Layer {
@@ -17,7 +21,7 @@ public:
 
 		//vertex buffer
 
-		std::shared_ptr<Hazel::VertexBuffer> vertexBuffer;
+		Hazel::Ref<Hazel::VertexBuffer> vertexBuffer;
 		vertexBuffer.reset(Hazel::VertexBuffer::Create(verticies, sizeof(verticies)));
 
 		// tell opengl the layout of buffer
@@ -31,26 +35,27 @@ public:
 
 		uint32_t indicies[3] = { 0, 1, 2 };
 
-		std::shared_ptr<Hazel::IndexBuffer> indexBuffer;
+		Hazel::Ref<Hazel::IndexBuffer> indexBuffer;
 		indexBuffer.reset(Hazel::IndexBuffer::Create(indicies, sizeof(indicies) / sizeof(int32_t)));
 		m_VertexArray->SetIndexBuffer(indexBuffer);
 
 		m_SquareVA.reset(Hazel::VertexArray::Create());
 
-		float squarVerticies[4 * 3] = {
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.5f,  0.5f, 0.0f,
-			-0.5f,  0.5f, 0.0f
+		float squarVerticies[4 * 5] = {
+			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+			 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 		};
 
 
-		std::shared_ptr<Hazel::VertexBuffer> squareVB;
+		Hazel::Ref<Hazel::VertexBuffer> squareVB;
 		squareVB.reset(Hazel::VertexBuffer::Create(squarVerticies, sizeof(squarVerticies)));
 
 
 		Hazel::BufferLayout squareVBLayout = {
-			{ Hazel::ShaderDataType::Float3, "a_Position" }
+			{ Hazel::ShaderDataType::Float3, "a_Position" },
+			{ Hazel::ShaderDataType::Float2, "a_TextCoord" }
 		};
 
 		squareVB->SetLayout(squareVBLayout);
@@ -94,7 +99,7 @@ public:
 			}
 		)";
 
-		m_Shader.reset(new Hazel::Shader(vertexSrc, fragmentSrc));
+		m_Shader.reset(Hazel::Shader::Create(vertexSrc, fragmentSrc));
 
 		std::string vertexSrc2 = R"(
 			#version 330 core
@@ -114,13 +119,20 @@ public:
 			
 			layout(location = 0) out vec4 color;
 
-			uniform vec4 u_Color;
+			uniform vec3 u_Color;
 
 			void main() {
-				color = u_Color;
+				color = vec4(u_Color, 1.0);
 			}
 		)";
-		m_SquareShader.reset(new Hazel::Shader(vertexSrc2, fragmentSrc2));
+		m_SquareShader.reset(Hazel::Shader::Create(vertexSrc2, fragmentSrc2));
+
+		m_TextureShader.reset(Hazel::Shader::Create("assets/shaders/Texture.glsl"));
+
+		m_Texture = Hazel::Texture2D::Create("assets/textures/icon.png");
+
+		std::dynamic_pointer_cast<Hazel::OpenGLShader>(m_TextureShader)->Bind();
+		std::dynamic_pointer_cast<Hazel::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
 
 	}
 	~SandBoxLayer() {}
@@ -171,21 +183,23 @@ public:
 		glm::vec4 redColor(0.2, 0.3, 0.8, 1.0);
 		glm::vec4 blueColor(0.8, 0.3, 0.2, 1.0);
 
+		std::dynamic_pointer_cast<Hazel::OpenGLShader>(m_SquareShader)->Bind();
+		std::dynamic_pointer_cast<Hazel::OpenGLShader>(m_SquareShader)->UploadUniformFloat3("u_Color", m_SuareColor);
+
 		for (int y = 0; y < 20; y++) {
 			for (int x = 0; x < 20; x++) {
 				glm::vec3 pos(x * 0.11f, y * 0.11f, 0.0f);
-				if (x % 2 == 0)
-					m_SquareShader->UploadUniformFloat4("u_Color", redColor);
-				else
-					m_SquareShader->UploadUniformFloat4("u_Color", blueColor);
-
+				
 				glm::mat4 transform = glm::translate(glm::mat4(1.0f), pos + m_SquarePosition) * scale;
 				Hazel::Renderer::Submit(m_SquareShader, m_SquareVA, transform);
 			}
 		}
-		
 
-		Hazel::Renderer::Submit(m_Shader, m_VertexArray);
+		m_Texture->Bind();
+		Hazel::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		
+		// Triangle
+		//Hazel::Renderer::Submit(m_Shader, m_VertexArray);
 
 		Hazel::Renderer::EndScene();
 	}
@@ -204,14 +218,19 @@ public:
 
 	void OnImGuiRender() override {
 
+		ImGui::Begin("Settings");
+		ImGui::ColorEdit3("Square Color", glm::value_ptr(m_SuareColor));
+		ImGui::End();
+
 	}
 
 private:
-	std::shared_ptr<Hazel::Shader> m_Shader;
-	std::shared_ptr<Hazel::Shader> m_SquareShader;
+	Hazel::Ref<Hazel::Shader> m_Shader;
+	Hazel::Ref<Hazel::Shader> m_SquareShader, m_TextureShader;
 
-	std::shared_ptr<Hazel::VertexArray> m_VertexArray;
-	std::shared_ptr<Hazel::VertexArray> m_SquareVA;
+	Hazel::Ref<Hazel::VertexArray> m_VertexArray;
+	Hazel::Ref<Hazel::VertexArray> m_SquareVA;
+	Hazel::Ref<Hazel::Texture2D> m_Texture;
 
 	Hazel::OrthogrphicCamera m_Camera;
 
@@ -221,6 +240,8 @@ private:
 
 	float m_SquareMoveSpeed = 1.0f;
 	glm::vec3 m_SquarePosition;
+
+	glm::vec3 m_SuareColor = { 0.2f, 0.3f, 0.8f };
 };
 
 class Sandbox : public Hazel::Application {

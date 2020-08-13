@@ -1,6 +1,7 @@
 #include "hzpch.h"
 #include "Application.h"
 #include "Hazel/Core/TimeStep.h"
+#include "Hazel/Renderer/Renderer.h"
 #include "GLFW/glfw3.h"
 
 namespace Hazel {
@@ -11,6 +12,8 @@ namespace Hazel {
 
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(HZ_BIND_EVENT_FN(Application::OnEvent));
+
+		Renderer::Init();
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverLay(m_ImGuiLayer);
@@ -49,7 +52,6 @@ namespace Hazel {
 	
 
 	void Application::Run() {
-
 		WindowResizeEvent e(1200, 720);
 		if (e.IsInCategory(EventCategoryApplication)) HZ_INFO(e);
 		if (!e.IsInCategory(EventCategoryKeyboard)) HZ_ERROR(e);
@@ -62,7 +64,6 @@ namespace Hazel {
 
 			for (Layer* layer : m_LayerStack)
 				layer->OnUpdate(timestep);
-
 			
 			m_ImGuiLayer->Begin();
 			// ImGui render sits between begin and end 
@@ -81,7 +82,6 @@ namespace Hazel {
 
 	
 	bool Application::OnKeyPressed(KeyPressedEvent& e) {
-		
 		return false;
 	}
 
