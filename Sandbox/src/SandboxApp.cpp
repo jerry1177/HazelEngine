@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "Hazel/Renderer/Shader.h"
 
 
 
@@ -99,7 +100,7 @@ public:
 			}
 		)";
 
-		m_Shader.reset(Hazel::Shader::Create(vertexSrc, fragmentSrc));
+		m_Shader = Hazel::Shader::Create("FlatColorShader", vertexSrc, fragmentSrc);
 
 		std::string vertexSrc2 = R"(
 			#version 330 core
@@ -125,9 +126,10 @@ public:
 				color = vec4(u_Color, 1.0);
 			}
 		)";
-		m_SquareShader.reset(Hazel::Shader::Create(vertexSrc2, fragmentSrc2));
+		m_SquareShader = Hazel::Shader::Create("VertexPosColor", vertexSrc2, fragmentSrc2);
 
-		m_TextureShader.reset(Hazel::Shader::Create("assets/shaders/Texture.glsl"));
+		//m_TextureShader = Hazel::Shader::Create("assets/shaders/Texture.glsl");
+		Hazel::Ref<Hazel::Shader> m_TextureShader = m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
 
 		m_Texture = Hazel::Texture2D::Create("assets/textures/icon.png");
 
@@ -196,7 +198,7 @@ public:
 		}
 
 		m_Texture->Bind();
-		Hazel::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
+		Hazel::Renderer::Submit(m_ShaderLibrary.Get("Texture"), m_SquareVA, glm::scale(glm::mat4(1.0f), glm::vec3(1.5f)));
 		
 		// Triangle
 		//Hazel::Renderer::Submit(m_Shader, m_VertexArray);
@@ -225,8 +227,9 @@ public:
 	}
 
 private:
+	Hazel::ShaderLibrary m_ShaderLibrary;
 	Hazel::Ref<Hazel::Shader> m_Shader;
-	Hazel::Ref<Hazel::Shader> m_SquareShader, m_TextureShader;
+	Hazel::Ref<Hazel::Shader> m_SquareShader;
 
 	Hazel::Ref<Hazel::VertexArray> m_VertexArray;
 	Hazel::Ref<Hazel::VertexArray> m_SquareVA;
