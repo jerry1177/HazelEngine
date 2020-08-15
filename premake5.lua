@@ -72,7 +72,8 @@ project "Hazel"
 
 		defines
 		{
-			"HZ_PLATFORM_WINDOWS",
+			"_WIND32",
+			"_WIND64",
 			"HZ_BUILD_DLL",
 			"GLFW_INCLUDE_NONE",
 			"_CRT_SECURE_NO_WARNINGS"
@@ -88,11 +89,13 @@ project "Hazel"
 		defines "HZ_RELEASE"
 		runtime "Release"
 		optimize "on"
+		symbols "on"
 
 	filter "configurations:Dist"
 		defines "HZ_DIST"
 		runtime "Release"
 		optimize "on"
+		symbols "on"
 
 project "Sandbox"
 	location "Sandbox"
@@ -129,7 +132,8 @@ project "Sandbox"
 
 		defines
 		{
-			"HZ_PLATFORM_WINDOWS"
+			"_WIND32",
+			"_WIND64"
 		}
 
 		
@@ -143,8 +147,10 @@ project "Sandbox"
 		defines "HZ_RELEASE"
 		runtime "Release"
 		optimize "on"
+		symbols "on"
 
 	filter "configurations:Dist"
 		defines "HZ_DIST"
 		runtime "Release"
 		optimize "on"
+		symbols "on"

@@ -1,6 +1,6 @@
 #pragma once
 //#include "Hazel/Core.h"
-#include "Hazel/Layer.h"
+#include "Hazel/Core/Layer.h"
 #include "Hazel/Events/MouseEvent.h"
 #include "Hazel/Events/KeyEvent.h"
 #include "Hazel/Events/ApplicationEvent.h"

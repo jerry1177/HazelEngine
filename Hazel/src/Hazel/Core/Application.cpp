@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Hazel/Core/TimeStep.h"
 #include "Hazel/Renderer/Renderer.h"
+#include "Hazel/Renderer/Renderer2D.h"
 #include "GLFW/glfw3.h"
 
 namespace Hazel {
@@ -14,6 +15,7 @@ namespace Hazel {
 		m_Window->SetEventCallback(HZ_BIND_EVENT_FN(Application::OnEvent));
 
 		Renderer::Init();
+
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverLay(m_ImGuiLayer);
@@ -40,7 +42,7 @@ namespace Hazel {
 		EventDispatcher dispatcher(e);
 
 		dispatcher.Dispatch<WindowCloseEvent>(HZ_BIND_EVENT_FN(Application::OnWindowClose));
-		dispatcher.Dispatch<KeyPressedEvent>(HZ_BIND_EVENT_FN(Application::OnKeyPressed));
+		dispatcher.Dispatch<WindowResizeEvent>(HZ_BIND_EVENT_FN(Application::OnWIndowResize));
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) {
 			(*--it)->OnEvent(e);
@@ -52,9 +54,6 @@ namespace Hazel {
 	
 
 	void Application::Run() {
-		WindowResizeEvent e(1200, 720);
-		if (e.IsInCategory(EventCategoryApplication)) HZ_INFO(e);
-		if (!e.IsInCategory(EventCategoryKeyboard)) HZ_ERROR(e);
 
 		while (m_Running) { 
 
@@ -62,8 +61,10 @@ namespace Hazel {
 			TimeStep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate(timestep);
+			if (!m_Minimize) {
+				for (Layer* layer : m_LayerStack)
+					layer->OnUpdate(timestep);
+			}
 			
 			m_ImGuiLayer->Begin();
 			// ImGui render sits between begin and end 
@@ -79,9 +80,13 @@ namespace Hazel {
 		m_Running = false;
 		return true;
 	}
-
-	
-	bool Application::OnKeyPressed(KeyPressedEvent& e) {
+	bool Application::OnWIndowResize(WindowResizeEvent& e) {
+		if (e.GetWidth() == 0 || e.GetHeight() == 0) {
+			m_Minimize = true;
+			return false;
+		}
+		m_Minimize = false;
+		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
 		return false;
 	}
 

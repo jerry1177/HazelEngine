@@ -5,13 +5,13 @@
 
 namespace Hazel {
 
-	VertexBuffer* VertexBuffer::Create(float* verticies, uint32_t size) {
+	Ref<VertexBuffer> VertexBuffer::Create(float* verticies, uint32_t size) {
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None: 
 			HZ_CORE_ASSERT(false, "RendererAPI::None is not superted!");
 			return nullptr;
-		case RendererAPI::API::OpenGL: return new OpenGLVertexBuffer(verticies, size);
+		case RendererAPI::API::OpenGL: return std::make_shared<OpenGLVertexBuffer>(verticies, size);
 
 		default:
 			break;
@@ -21,13 +21,13 @@ namespace Hazel {
 		return nullptr;
 	}
 
-	IndexBuffer* IndexBuffer::Create(uint32_t* verticies, uint32_t size) {
+	Ref<IndexBuffer> IndexBuffer::Create(uint32_t* verticies, uint32_t size) {
 		switch (Renderer::GetAPI())
 		{
 		case RendererAPI::API::None:
 			HZ_CORE_ASSERT(false, "RendererAPI::None is not superted!");
 			return nullptr;
-		case RendererAPI::API::OpenGL: return new OpenGLIndexBuffer(verticies, size);
+		case RendererAPI::API::OpenGL: return std::make_shared<OpenGLIndexBuffer>(verticies, size);
 
 		default:
 			break;

@@ -1,11 +1,11 @@
 #include "hzpch.h"
 #include "ImGuiLayer.h"
-#include "Hazel/Application.h"
+#include "Hazel/Core/Application.h"
 #include "examples/imgui_impl_glfw.h"
 #include "examples/imgui_impl_opengl3.h"
 
-#include "GLFW/glfw3.h"
-#include "glad/glad.h"
+#include <GLFW/glfw3.h>
+#include "../../vendor/GLAD/include/glad/glad.h"
 
 namespace Hazel {
 	ImGuiLayer::ImGuiLayer() : Layer("ImGuiLayer") {

@@ -5,6 +5,9 @@
 #include "GLFW/glfw3.h"
 #include "glad/glad.h"
 
+
+
+
 namespace Hazel {
 	OpenGLContext::OpenGLContext(GLFWwindow* windowHandle) 
 		: m_WindowHandle(windowHandle) {
@@ -18,10 +21,16 @@ namespace Hazel {
 
 		//glGetString(GL_VENDOR);
 		HZ_CORE_INFO("OpenGL Info: \nRenderer: {0} \nVendor: {1} \nVersion: {2}", glGetString(GL_RENDERER), glGetString(GL_VENDOR), glGetString(GL_VERSION));
+		#ifdef HZ_ENABLE_ASSERTS
+				int versionMajor;
+				int versionMinor;
+				glGetIntegerv(GL_MAJOR_VERSION, &versionMajor);
+				glGetIntegerv(GL_MINOR_VERSION, &versionMinor);
+				HZ_CORE_ASSERT((versionMajor > 4) || (versionMajor == 4 && versionMinor >= 5), "Hazel requires atleast OpenGL version 4.5");
+		#endif
 	}
 
 	void OpenGLContext::SwapBuffers() {
-
 		glfwSwapBuffers(m_WindowHandle);
 	}
 }

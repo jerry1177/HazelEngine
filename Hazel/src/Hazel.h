@@ -1,20 +1,21 @@
 #pragma once
 
 // ------- Core Application --------
-#include "Hazel/Application.h"
+#include "Hazel/Core/Application.h"
 #include "Hazel/Events/Event.h"
-#include "Hazel/Layer.h"
-#include "Hazel/Log.h"
+#include "Hazel/Core/Layer.h"
+#include "Hazel/Core/Log.h"
 #include "Hazel/Core/TimeStep.h"
-#include "Hazel/Input.h"
-#include "Hazel/KeyCodes.h"
-#include "Hazel/MouseButtonCodes.h"
+#include "Hazel/Core/Input.h"
+#include "Hazel/Core/KeyCodes.h"
+#include "Hazel/Core/MouseButtonCodes.h"
 #include "Hazel/OrthoCameraController.h"
 
 // ------- UI --------
 #include "Hazel/ImGui/ImGuiLayer.h"
 
 // ------- Renderer --------
+#include "Hazel/Renderer/Renderer2D.h"
 #include "Hazel/Renderer/Renderer.h"
 #include "Hazel/Renderer/RenderCommand.h"
 
@@ -26,5 +27,6 @@
 #include "Hazel/Renderer/OrthographicCamera.h"
 
 // -------Entry Point--------
-#include "Hazel/EntryPoint.h"
+// Must be implemented on client side!
+//#include "Hazel/Core/EntryPoint.h"
 // --------------------------

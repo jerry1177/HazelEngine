@@ -1,17 +1,18 @@
 #include <Hazel.h>
+#include "Hazel/Core/EntryPoint.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
 #include "imgui.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include "Hazel/Renderer/Shader.h"
-
+#include "Sandbox2D.h"
 
 
 class SandBoxLayer : public Hazel::Layer {
 public:
 	SandBoxLayer() : Layer("Sandbox"), m_CameraController(1280.0f/720.0f, true), m_SquarePosition(0.0f) {
-		m_VertexArray.reset(Hazel::VertexArray::Create());
+		m_VertexArray = Hazel::VertexArray::Create();
 
 		//index buffer
 		float verticies[3 * 7] = {
@@ -23,7 +24,7 @@ public:
 		//vertex buffer
 
 		Hazel::Ref<Hazel::VertexBuffer> vertexBuffer;
-		vertexBuffer.reset(Hazel::VertexBuffer::Create(verticies, sizeof(verticies)));
+		vertexBuffer = Hazel::VertexBuffer::Create(verticies, sizeof(verticies));
 
 		// tell opengl the layout of buffer
 		Hazel::BufferLayout layout = {
@@ -37,10 +38,10 @@ public:
 		uint32_t indicies[3] = { 0, 1, 2 };
 
 		Hazel::Ref<Hazel::IndexBuffer> indexBuffer;
-		indexBuffer.reset(Hazel::IndexBuffer::Create(indicies, sizeof(indicies) / sizeof(int32_t)));
+		indexBuffer = Hazel::IndexBuffer::Create(indicies, sizeof(indicies) / sizeof(int32_t));
 		m_VertexArray->SetIndexBuffer(indexBuffer);
 
-		m_SquareVA.reset(Hazel::VertexArray::Create());
+		m_SquareVA = Hazel::VertexArray::Create();
 
 		float squarVerticies[4 * 5] = {
 			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -51,7 +52,7 @@ public:
 
 
 		Hazel::Ref<Hazel::VertexBuffer> squareVB;
-		squareVB.reset(Hazel::VertexBuffer::Create(squarVerticies, sizeof(squarVerticies)));
+		squareVB = Hazel::VertexBuffer::Create(squarVerticies, sizeof(squarVerticies));
 
 
 		Hazel::BufferLayout squareVBLayout = {
@@ -64,7 +65,7 @@ public:
 
 		uint32_t squareIndicies[6] = { 0, 1, 2, 2, 3, 0 };
 		std::shared_ptr<Hazel::IndexBuffer> squareIB;
-		squareIB.reset(Hazel::IndexBuffer::Create(squareIndicies, sizeof(squareIndicies) / sizeof(int32_t)));
+		squareIB = Hazel::IndexBuffer::Create(squareIndicies, sizeof(squareIndicies) / sizeof(int32_t));
 		m_SquareVA->SetIndexBuffer(squareIB);
 
 		std::string vertexSrc = R"(
@@ -144,7 +145,7 @@ public:
 		m_CameraController.OnUpdate(ts);
 
 		// On Render
-		HZ_TRACE("DeltaTime: {0}s, {1}ms", ts.GetSeconds(), ts.GetMiliSeconds());
+		//HZ_INFO("DeltaTime: {0}s, {1}ms", ts.GetSeconds(), ts.GetMiliSeconds());
 		Hazel::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
 		Hazel::RenderCommand::Clear();
 
@@ -238,10 +239,11 @@ public:
 
 Hazel::Application* Hazel::CreateApplication() {
 	Sandbox* sandBox = new Sandbox();
-	SandBoxLayer* sbLayer = new SandBoxLayer();
+	//SandBoxLayer* sbLayer = new SandBoxLayer();
+	Sandbox2D * leyer2D = new Sandbox2D();
+
 	
-	
-	sandBox->PushLayer(sbLayer);
+	sandBox->PushLayer(leyer2D);
 
 	return sandBox;
 }
