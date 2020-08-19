@@ -20,5 +20,16 @@ private:
 	Hazel::Ref<Hazel::Shader> m_Shader;
 	glm::vec4 m_SuareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 	Hazel::Ref<Hazel::Texture2D> m_Texture;
+	float m_Rotation = 0.0f;
+	float m_RotationSpeed = 10.0f;
+	/*
+	struct ProfileResult
+	{
+		const char* Name;
+		float Time;
+	};
+
+	std::vector<ProfileResult> m_ProfileResults;
+	*/
 };
 
