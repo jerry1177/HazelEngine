@@ -240,7 +240,7 @@ public:
 Hazel::Application* Hazel::CreateApplication() {
 	Sandbox* sandBox = new Sandbox();
 	//SandBoxLayer* sbLayer = new SandBoxLayer();
-	Sandbox2D * leyer2D = new Sandbox2D();
+	EditorLayer * leyer2D = new EditorLayer();
 
 	
 	sandBox->PushLayer(leyer2D);

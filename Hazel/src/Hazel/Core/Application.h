@@ -12,7 +12,7 @@ namespace Hazel {
 	class HAZEL_API Application
 	{
 	public:
-		Application();
+		Application(const std::string& name = "Application");
 		virtual ~Application();
 		void OnEvent(Event& e);
 		void Run();

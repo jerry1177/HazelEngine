@@ -2,11 +2,11 @@
 
 #include "Hazel.h"
 #include "ParticleSystem.h"
-class Sandbox2D : public Hazel::Layer
+class EditorLayer : public Hazel::Layer
 {
 public:
-	Sandbox2D() : Layer("Sandbox"), m_CameraController(1280.0f / 720.0f) {}
-	virtual ~Sandbox2D() = default;
+	EditorLayer() : Layer("Sandbox"), m_CameraController(1280.0f / 720.0f) {}
+	virtual ~EditorLayer() = default;
 	void OnAttach() override;
 	void OnDetach() override;
 	void OnUpdate(Hazel::TimeStep ts) override;
@@ -23,6 +23,7 @@ private:
 	Hazel::Ref<Hazel::Texture2D> m_Texture;
 	Hazel::Ref<Hazel::Texture2D> m_SpriteSheet;
 	Hazel::Ref<Hazel::SubTexture2D> m_TextureBarrel;
+	Hazel::Ref<Hazel::Framebuffer> m_FrameBuffer;
 	float m_Rotation = 0.0f;
 	float m_RotationSpeed = 10.0f;
 	ParticleSystem m_ParticleSystem;

@@ -1,8 +1,19 @@
 # Directories
 
 .vs/
-.vs/Hazel/v16/Browse.VC.db
-.vs/Hazel/v16/.suo
 
 bin/
 bin-int/
+
+**.sln
+**.vcxproj
+**.vcxproj.filters
+**.vcxproj.user
+
+Sandbox/HazelProfile-endtime.json
+Sandbox/HazelProfile-runtime.json
+Sandbox/HazelProfile-startup.json
+
+Hazel-Editor/HazelProfile-endtime.json
+Hazel-Editor/HazelProfile-runtime.json
+Hazel-Editor/HazelProfile-startup.json
