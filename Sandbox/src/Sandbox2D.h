@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Hazel.h"
+#include "ParticleSystem.h"
 class Sandbox2D : public Hazel::Layer
 {
 public:
@@ -20,16 +21,16 @@ private:
 	Hazel::Ref<Hazel::Shader> m_Shader;
 	glm::vec4 m_SuareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
 	Hazel::Ref<Hazel::Texture2D> m_Texture;
+	Hazel::Ref<Hazel::Texture2D> m_SpriteSheet;
+	Hazel::Ref<Hazel::SubTexture2D> m_TextureBarrel;
 	float m_Rotation = 0.0f;
 	float m_RotationSpeed = 10.0f;
-	/*
-	struct ProfileResult
-	{
-		const char* Name;
-		float Time;
-	};
+	ParticleSystem m_ParticleSystem;
 
-	std::vector<ProfileResult> m_ProfileResults;
-	*/
+	ParticleProps m_Particle;
+	
+
+	std::unordered_map<char, Hazel::Ref<Hazel::SubTexture2D>> s_TextureMap;
+	uint32_t m_MapWidth, m_MapHeight;
 };
 

@@ -43,6 +43,8 @@ namespace Hazel {
 		if (channels == 4) {
 			internalFormat = GL_RGBA8;
 			dataFormat = GL_RGBA;
+			HZ_CORE_INFO("HI");
+
 		}
 		else if (channels == 3) {
 			internalFormat = GL_RGB8;
@@ -63,8 +65,11 @@ namespace Hazel {
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
 		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, dataFormat, GL_UNSIGNED_BYTE, data);
+		//glTextureSubImage2D()
+		//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		stbi_image_free(data);
 
 	}

@@ -67,7 +67,6 @@ namespace Hazel {
 		HZ_PROFILE_FUNCTION();
 		glBindVertexArray(m_RendererID);
 		indexBuffer->Bind();
-
 		m_IndexBuffer = indexBuffer;
 	}
 }

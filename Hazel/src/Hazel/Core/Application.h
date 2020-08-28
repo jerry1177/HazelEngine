@@ -16,6 +16,7 @@ namespace Hazel {
 		virtual ~Application();
 		void OnEvent(Event& e);
 		void Run();
+		void Close();
 
 		void PushLayer(Layer* layer);
 		void PushOverLay(Layer* layer);
