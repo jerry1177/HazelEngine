@@ -151,13 +151,13 @@ public:
 
 		Hazel::Renderer::BeginScene(m_CameraController.GetCamera());
 
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_J))
+		if (Hazel::Input::IsKeyPressed(Hazel::Key::J))
 			m_SquarePosition.x -= m_SquareMoveSpeed * ts;
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_I))
+		if (Hazel::Input::IsKeyPressed(Hazel::Key::I))
 			m_SquarePosition.y += m_SquareMoveSpeed * ts;
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_L))
+		if (Hazel::Input::IsKeyPressed(Hazel::Key::L))
 			m_SquarePosition.x += m_SquareMoveSpeed * ts;
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_K))
+		if (Hazel::Input::IsKeyPressed(Hazel::Key::K))
 			m_SquarePosition.y -= m_SquareMoveSpeed * ts;
 
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));

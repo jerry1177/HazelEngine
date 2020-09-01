@@ -16,23 +16,23 @@ namespace Hazel {
 	{
 		HZ_PROFILE_FUNCTION();
 		
-		if (Input::IsKeyPressed(HZ_KEY_A))
+		if (Input::IsKeyPressed(Key::A))
 			m_Position.x -= m_CameraTranslationSpeed * ts;
-		if (Input::IsKeyPressed(HZ_KEY_W))
+		if (Input::IsKeyPressed(Key::W))
 			m_Position.y += m_CameraTranslationSpeed * ts;
-		if (Input::IsKeyPressed(HZ_KEY_D))
+		if (Input::IsKeyPressed(Key::D))
 			m_Position.x += m_CameraTranslationSpeed * ts;
-		if (Input::IsKeyPressed(HZ_KEY_S))
+		if (Input::IsKeyPressed(Key::S))
 			m_Position.y -= m_CameraTranslationSpeed * ts;
 
 
 		if (m_Rotation) {
 			
-			if (Input::IsKeyPressed(HZ_KEY_LEFT)) {
+			if (Input::IsKeyPressed(Key::Left)) {
 				m_CameraRotation -= m_CameraRotationSpeed * ts;
 				HZ_CORE_INFO("HI");
 			}
-			if (Input::IsKeyPressed(HZ_KEY_RIGHT)) {
+			if (Input::IsKeyPressed(Key::Right)) {
 				m_CameraRotation += m_CameraRotationSpeed * ts;
 				
 			}

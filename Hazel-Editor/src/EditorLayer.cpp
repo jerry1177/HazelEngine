@@ -50,6 +50,14 @@ namespace Hazel {
 		fbSpec.Width = 1280;
 		fbSpec.Height = 720;
 		m_FrameBuffer = Hazel::Framebuffer::Create(fbSpec);
+
+		m_ActiveScene = CreateRef<Scene>();
+
+		auto square = m_ActiveScene->CreateEntity("Square");
+		square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
+		m_SquareEntity = square;
+		
+		
 	}
 	void EditorLayer::OnDetach() {
 
@@ -57,14 +65,16 @@ namespace Hazel {
 
 	float position = 0.5f;
 	float positionSpeed = 0.1f;
-	void EditorLayer::OnUpdate(Hazel::TimeStep ts) {
+	void EditorLayer::OnUpdate(TimeStep ts) {
 		HZ_PROFILE_FUNCTION();
 		//HZ_CORE_INFO("ts: {0}", ts.GetMiliSeconds());
 
 		m_FrameBuffer->Bind();
 
 		// On Update 
-		m_CameraController.OnUpdate(ts);
+		if (m_ViewportFocused)
+			m_CameraController.OnUpdate(ts);
+
 
 		Renderer2D::ResetStats();
 
@@ -72,7 +82,11 @@ namespace Hazel {
 		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 0.0f });
 		RenderCommand::Clear();
 
-		if (Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_LEFT))
+		Renderer2D::BeginScene(m_CameraController.GetCamera());
+		m_ActiveScene->OnUpdate(ts);
+		Renderer2D::EndScene();
+		/*
+		if (m_ViewportFocused && Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_LEFT))
 		{
 			auto [x, y] = Input::GetMousePosition();
 			auto width = Application::Get().GetWindow().GetWidth();
@@ -87,10 +101,11 @@ namespace Hazel {
 				m_ParticleSystem.Emit(m_Particle);
 		}
 
-
-		m_ParticleSystem.OnUpdate(ts);
+		
+			m_ParticleSystem.OnUpdate(ts);
 		m_ParticleSystem.OnRender(m_CameraController.GetCamera());
-
+		*/
+		/*
 		Renderer2D::BeginScene(m_CameraController.GetCamera());
 		m_Rotation += m_RotationSpeed * ts;
 		if (position > 3.0f || position < -3.0f)
@@ -108,7 +123,9 @@ namespace Hazel {
 				Renderer2D::DrawQuad({ x - m_MapWidth / 2.0f, y - m_MapHeight / 2.0f, 0.5f }, { 1.0f, 1.0f }, texture);
 			}
 		}
+		
 		Renderer2D::EndScene();
+		*/
 		m_FrameBuffer->Unbind();
 	}
 	void EditorLayer::OnImGuiRender() {
@@ -187,14 +204,24 @@ namespace Hazel {
 		ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
 		ImGui::Text("Indices: %d", stats.GetTotalIndicies());
 
-		ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SuareColor));
-		//uint32_t textureID = m_TextureBarrel->GetTexture()->GetRendererID();
+		ImGui::Separator();
+		if (m_SquareEntity) {
+			ImGui::Text("%s", m_SquareEntity.GetComponent<TagComponent>().Tag.c_str());
 
+			auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
+
+			ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
+			//uint32_t textureID = m_TextureBarrel->GetTexture()->GetRendererID();
+		}
 		
 
 		ImGui::End();
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Viewport");
+		m_ViewportFocused = ImGui::IsWindowFocused();
+		m_ViewportHovered = ImGui::IsWindowHovered();
+		Application::Get().GetImGuiLayer()->SetBlockEvents(!m_ViewportFocused || !m_ViewportHovered);
+
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		if (m_ViewPanelSize.x != viewportPanelSize.x || m_ViewPanelSize.y != viewportPanelSize.y) {
 			m_FrameBuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
@@ -205,8 +232,10 @@ namespace Hazel {
 		uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();
 
 		ImGui::Image((void*)textureID, ImVec2{ m_ViewPanelSize.x, m_ViewPanelSize.y }, { 0, 1 }, { 1, 0 });
+		
 		ImGui::End();
 		ImGui::PopStyleVar();
+		
 		ImGui::End();
 		//*/
 	}

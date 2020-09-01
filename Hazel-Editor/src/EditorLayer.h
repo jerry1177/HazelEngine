@@ -18,6 +18,9 @@ namespace Hazel {
 
 	private:
 
+		Ref<Scene> m_ActiveScene;
+		Entity m_SquareEntity;
+
 		OrthographicCameraController m_CameraController;
 		Ref<VertexArray> m_VertexArray;
 		Ref<Shader> m_Shader;
@@ -37,6 +40,8 @@ namespace Hazel {
 		uint32_t m_MapWidth, m_MapHeight;
 
 		glm::vec2 m_ViewPanelSize;
+
+		bool m_ViewportFocused = false, m_ViewportHovered = false;
 	};
 }
 
