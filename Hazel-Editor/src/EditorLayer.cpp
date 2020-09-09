@@ -24,6 +24,7 @@ namespace Hazel {
 		"wwwwwwwwwwwwwwwwwwwwwwww"
 		"wwwwwwwwwwwwwwwwwwwwwwww";
 
+
 	void EditorLayer::OnAttach() {
 		HZ_PROFILE_FUNCTION();
 		m_Texture = Texture2D::Create("assets/textures/icon.png");
@@ -57,7 +58,45 @@ namespace Hazel {
 		square.AddComponent<SpriteRendererComponent>(glm::vec4{ 0.0f, 1.0f, 0.0f, 1.0f });
 		m_SquareEntity = square;
 		
-		
+		m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
+		m_CameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));
+		m_CameraEntity2 = m_ActiveScene->CreateEntity("Camera Entity2");
+		m_CameraEntity2.AddComponent<CameraComponent>(glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f));
+		auto& cc = m_CameraEntity2.GetComponent<CameraComponent>();
+		cc.FixedAspectRatio = true;
+		cc.Primary = false;
+		class CameraController : public ScriptableEntity {
+		public:
+			void OnCreate() {
+				auto& transform = GetComponent<TransformComponent>().Transform;
+				std::cout << "Camera Controller::OnCreate!" << std::endl;
+				transform[3][0] = rand() % 10 - 5.0f;
+			}
+
+			void OnUpdate(TimeStep ts) {
+				std::cout << "Camera Controller::OnUpdate: " << ts << std::endl;
+				glm::mat4& transform = GetComponent<TransformComponent>().Transform;
+				float speed = 5.0f;
+				if (Input::IsKeyPressed(Key::A)) {
+					transform[3][0] -= speed * ts;
+				}
+				if (Input::IsKeyPressed(Key::D)) {
+					transform[3][0] += speed * ts;
+				}
+				if (Input::IsKeyPressed(Key::W)) {
+					transform[3][1] += speed * ts;
+				}
+				if (Input::IsKeyPressed(Key::S)) {
+					transform[3][1] -= speed * ts;
+				}
+			}
+
+			void OnDestroy() {
+
+			}
+		};
+		m_CameraEntity.AddNativeScriptComponent<CameraController>();
+		m_CameraEntity2.AddNativeScriptComponent<CameraController>();
 	}
 	void EditorLayer::OnDetach() {
 
@@ -82,50 +121,8 @@ namespace Hazel {
 		RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 0.0f });
 		RenderCommand::Clear();
 
-		Renderer2D::BeginScene(m_CameraController.GetCamera());
 		m_ActiveScene->OnUpdate(ts);
-		Renderer2D::EndScene();
-		/*
-		if (m_ViewportFocused && Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_LEFT))
-		{
-			auto [x, y] = Input::GetMousePosition();
-			auto width = Application::Get().GetWindow().GetWidth();
-			auto height = Application::Get().GetWindow().GetHeight();
-
-			auto bounds = m_CameraController.GetBounds();
-			auto pos = m_CameraController.GetCamera().GetPosition();
-			x = (x / width) * bounds.GetWidth() - bounds.GetWidth() * 0.5f;
-			y = bounds.GetHeight() * 0.5f - (y / height) * bounds.GetHeight();
-			m_Particle.Position = { x + pos.x, y + pos.y };
-			for (int i = 0; i < 5; i++)
-				m_ParticleSystem.Emit(m_Particle);
-		}
-
 		
-			m_ParticleSystem.OnUpdate(ts);
-		m_ParticleSystem.OnRender(m_CameraController.GetCamera());
-		*/
-		/*
-		Renderer2D::BeginScene(m_CameraController.GetCamera());
-		m_Rotation += m_RotationSpeed * ts;
-		if (position > 3.0f || position < -3.0f)
-			positionSpeed = -positionSpeed;
-		position += positionSpeed;
-		//*
-		for (uint32_t y = 0; y < m_MapHeight; y++) {
-			for (uint32_t x = 0; x < m_MapWidth; x++) {
-				char tileType = s_MapTiles[x + y * m_MapWidth];
-				Ref<SubTexture2D> texture;
-				if (s_TextureMap.find(tileType) != s_TextureMap.end())
-					texture = s_TextureMap[tileType];
-				else
-					texture = m_TextureBarrel;
-				Renderer2D::DrawQuad({ x - m_MapWidth / 2.0f, y - m_MapHeight / 2.0f, 0.5f }, { 1.0f, 1.0f }, texture);
-			}
-		}
-		
-		Renderer2D::EndScene();
-		*/
 		m_FrameBuffer->Unbind();
 	}
 	void EditorLayer::OnImGuiRender() {
@@ -211,9 +208,18 @@ namespace Hazel {
 			auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
 
 			ImGui::ColorEdit4("Square Color", glm::value_ptr(squareColor));
-			//uint32_t textureID = m_TextureBarrel->GetTexture()->GetRendererID();
 		}
 		
+		ImGui::Separator();
+		ImGui::DragFloat3("Camera Transform", glm::value_ptr(m_CameraEntity.GetComponent<TransformComponent>().Transform[3]));
+		ImGui::DragFloat3("Camera2 Transform", glm::value_ptr(m_CameraEntity2.GetComponent<TransformComponent>().Transform[3]));
+
+		if (ImGui::Checkbox("Camera A", &m_PrimaryCamera)) {
+			m_CameraEntity.GetComponent<CameraComponent>().Primary = m_PrimaryCamera;
+			HZ_INFO(m_CameraEntity.GetComponent<CameraComponent>().Primary);
+			m_CameraEntity2.GetComponent<CameraComponent>().Primary = !m_PrimaryCamera;
+			HZ_INFO(m_CameraEntity2.GetComponent<CameraComponent>().Primary);
+		}
 
 		ImGui::End();
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
@@ -224,9 +230,12 @@ namespace Hazel {
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		if (m_ViewPanelSize.x != viewportPanelSize.x || m_ViewPanelSize.y != viewportPanelSize.y) {
+
 			m_FrameBuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
 			m_ViewPanelSize = { viewportPanelSize.x, viewportPanelSize.y };
 			m_CameraController.Resize(viewportPanelSize.x, viewportPanelSize.y);
+
+			m_ActiveScene->SetViewportSize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
 		}
 
 		uint32_t textureID = m_FrameBuffer->GetColorAttachmentRendererID();

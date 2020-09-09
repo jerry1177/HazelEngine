@@ -1,7 +1,6 @@
 #pragma once
 #include "Hazel/Scene/Scene.h"
 #include "entt.hpp"
-
 namespace Hazel {
 	class Entity
 	{
@@ -18,6 +17,14 @@ namespace Hazel {
 			return m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
 		}
 
+		//*
+		template<typename T, typename... Args>
+		void AddNativeScriptComponent(Args&&... args) {
+			HZ_CORE_ASSERT(!HasComponent<NativeScriptComponent>(), "Entity already has component!");
+			m_Scene->m_Registry.emplace<NativeScriptComponent>(m_EntityHandle).Bind<T>();
+		}
+
+		//*/
 		template<typename T>
 		T& GetComponent() {
 			HZ_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
@@ -35,10 +42,10 @@ namespace Hazel {
 			m_Scene->m_Registry.remove<T>(m_EntityHandle);
 		}
 
-		operator bool() const { return m_EntityHandle != entt::entity{0}; }
+		operator bool() const { return m_EntityHandle != entt::null; }
 
 	private:
-		entt::entity m_EntityHandle{ 0 };
+		entt::entity m_EntityHandle{ entt::null };
 		Scene* m_Scene = nullptr; // 12
 	};
 

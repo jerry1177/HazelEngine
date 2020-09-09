@@ -19,7 +19,8 @@ namespace Hazel {
 	private:
 
 		Ref<Scene> m_ActiveScene;
-		Entity m_SquareEntity;
+		Entity m_SquareEntity, m_CameraEntity, m_CameraEntity2;
+		bool m_PrimaryCamera = true;
 
 		OrthographicCameraController m_CameraController;
 		Ref<VertexArray> m_VertexArray;
